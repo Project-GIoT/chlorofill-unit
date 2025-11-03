@@ -1,0 +1,102 @@
+[
+    {
+        "name": "Automatic Irrigation (Dry)",
+        "description": "Turn on pump when soil is dry",
+        "enabled": true,
+        "cooldown_ms": 100,
+        "condition": {
+            "type": "State",
+            "sensor": "soil_moisture_a",
+            "field": "scaled_value",
+            "operator": ">",
+            "threshold": 400
+        },
+        "actions": [
+            {
+                "type": "Control",
+                "device": "pump",
+                "method": "on",
+                "params": ""
+            }
+        ]
+    },
+    {
+        "name": "Automatic Irrigation (Wet)",
+        "description": "Turn off pump when soil is wet",
+        "enabled": true,
+        "cooldown_ms": 100,
+        "condition": {
+            "type": "State",
+            "sensor": "soil_moisture_a",
+            "field": "scaled_value",
+            "operator": "<=",
+            "threshold": 400
+        },
+        "actions": [
+            {
+                "type": "Control",
+                "device": "pump",
+                "method": "off",
+                "params": ""
+            }
+        ]
+    },
+    {
+        "name": "High Temperature Detector",
+        "description": "Detect when temperature exceeds 30°C",
+        "enabled": true,
+        "cooldown_ms": 1000,
+        "condition": {
+            "type": "State",
+            "sensor": "temperature",
+            "field": "temperature",
+            "operator": ">=",
+            "threshold": 30.0
+        },
+        "actions": [
+            {
+                "type": "Control",
+                "device": "builtin_led",
+                "method": "on",
+                "params": ""
+            },
+            {
+                "type": "Control",
+                "device": "buzzer",
+                "method": "on",
+                "params": ""
+            },
+            {
+                "type": "Signal",
+                "signal": "high_temp_alert"
+            }
+        ]
+    },
+    {
+        "name": "Normal Temperature Detector",
+        "description": "Detect when temperature is below 30°C",
+        "enabled": true,
+        "cooldown_ms": 1000,
+        "condition": {
+            "type": "State",
+            "sensor": "temperature",
+            "field": "temperature",
+            "operator": "<",
+            "threshold": 30.0
+        },
+        "actions": [
+            {
+                "type": "Control",
+                "device": "builtin_led",
+                "method": "off",
+                "params": ""
+            },
+            {
+                "type": "Control",
+                "device": "buzzer",
+                "method": "off",
+                "params": ""
+            }
+        ]
+    }
+]

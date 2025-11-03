@@ -1,0 +1,23 @@
+[
+    {
+        "name": "builtin_led",
+        "driver": "led_driver",
+        "pins": [
+            5
+        ]
+    },
+    {
+        "name": "buzzer",
+        "driver": "buzzer_driver",
+        "pins": [
+            13
+        ]
+    },
+    {
+        "name": "pump",
+        "driver": "pump",
+        "pins": [
+            4
+        ]
+    }
+]
