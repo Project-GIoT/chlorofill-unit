@@ -1,7 +1,6 @@
 from machine import Pin
 import time
 
-# Driver metadata
 METADATA = {
     'methods': {
         'on': {
@@ -26,11 +25,9 @@ METADATA = {
     'exposed_states': ['state', 'run_time']
 }
 
-# State storage
 states = {}
 
 def _get_state(pin):
-    """Get or create state for pin"""
     if pin not in states:
         states[pin] = {
             'active': False,
@@ -41,7 +38,6 @@ def _get_state(pin):
     return states[pin]
 
 def init(config):
-    """Initialize pump"""
     pin = config['pins'][0]
     print(f"Pump Driver: Initializing pump on pin {pin}")
     
@@ -53,7 +49,6 @@ def init(config):
     print(f"Pump Driver initialized for pin {pin}")
 
 def on(config):
-    """Turn pump on"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
@@ -61,10 +56,8 @@ def on(config):
         state['pin_obj'].value(1)
         state['active'] = True
         state['start_time'] = time.ticks_ms()
-        print(f"Pump on pin {pin} turned ON")
 
 def off(config):
-    """Turn pump off"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
@@ -72,14 +65,10 @@ def off(config):
         state['pin_obj'].value(0)
         state['active'] = False
         
-        # Update total run time
         elapsed = time.ticks_diff(time.ticks_ms(), state['start_time'])
         state['total_run_time'] += elapsed
-        
-        print(f"Pump on pin {pin} turned OFF")
 
 def toggle(config):
-    """Toggle pump state"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
@@ -89,7 +78,6 @@ def toggle(config):
         on(config)
 
 def run_duration(config):
-    """Run pump for specific duration"""
     pin = config['pins'][0]
     data = config.get('data', {})
     
@@ -98,11 +86,8 @@ def run_duration(config):
     on(config)
     time.sleep_ms(duration)
     off(config)
-    
-    print(f"Pump on pin {pin} ran for {duration}ms")
 
 def get_states(config):
-    """Get pump states"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
@@ -116,5 +101,4 @@ def get_states(config):
     }
 
 def update(config):
-    """Update pump (no continuous update needed)"""
     pass
