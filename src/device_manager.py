@@ -376,3 +376,130 @@ class DeviceManager:
             metadata['sensors'].append(meta)
         
         return metadata
+    
+    def _save_json(self, path, data):
+        try:
+            with open(path, 'w') as f:
+                json.dump(data, f)
+            print(f'Saved {len(data)} items to {path}')
+        except Exception as e:
+            print(f'Failed to save {path}: {e}')
+
+    def add_actuator(self, config):
+        required_fields = ['name', 'id', 'driver', 'pins']
+        for f in required_fields:
+            if f not in config:
+                print(f"Missing required field '{f}' for actuator.")
+                return False
+
+        if not isinstance(config['pins'], list):
+            print("Pins must be a list.")
+            return False
+
+        if self._find_actuator(config['id']):
+            print(f"Actuator with ID '{config['id']}' already exists.")
+            return False
+
+        validated = {
+            'name': config['name'],
+            'id': config['id'],
+            'driver': config['driver'],
+            'pins': config['pins']
+        }
+
+        self.actuators.append(validated)
+        self._save_json('/configs/actuators.json', self.actuators)
+
+        if self._load_driver(validated['driver']):
+            self._init_actuator(validated)
+
+        print(f"Added actuator: {validated['id']}")
+        return True
+
+    def remove_actuator(self, id):
+        before = len(self.actuators)
+        self.actuators = [a for a in self.actuators if a['id'] != id]
+        if len(self.actuators) < before:
+            self._save_json('/configs/actuators.json', self.actuators)
+            print(f"Removed actuator: {id}")
+            return True
+        print(f"Actuator '{id}' not found.")
+        return False
+
+    def add_sensor(self, config):
+        required_fields = ['name', 'id', 'driver', 'pins']
+        for f in required_fields:
+            if f not in config:
+                print(f"Missing required field '{f}' for sensor.")
+                return False
+
+        if not isinstance(config['pins'], list):
+            print("Pins must be a list.")
+            return False
+
+        if self._find_sensor(config['id']):
+            print(f"Sensor with ID '{config['id']}' already exists.")
+            return False
+
+        validated = {
+            'name': config['name'],
+            'id': config['id'],
+            'driver': config['driver'],
+            'pins': config['pins']
+        }
+
+        self.sensors.append(validated)
+        self._save_json('/configs/sensors.json', self.sensors)
+
+        if self._load_driver(validated['driver']):
+            self._init_sensor(validated)
+
+        print(f"Added sensor: {validated['id']}")
+        return True
+
+    def remove_sensor(self, id):
+        before = len(self.sensors)
+        self.sensors = [s for s in self.sensors if s['id'] != id]
+        if len(self.sensors) < before:
+            self._save_json('/configs/sensors.json', self.sensors)
+            print(f"Removed sensor: {id}")
+            return True
+        print(f"Sensor '{id}' not found.")
+        return False
+
+    def add_automation(self, config):
+        required_fields = ['name', 'id', 'condition', 'actions']
+        for f in required_fields:
+            if f not in config:
+                print(f"Missing required field '{f}' for automation.")
+                return False
+
+        if any(a['id'] == config['id'] for a in self.automations):
+            print(f"Automation with ID '{config['id']}' already exists.")
+            return False
+
+        validated = {
+            'name': config['name'],
+            'id': config['id'],
+            'description': config.get('description', ''),
+            'enabled': config.get('enabled', True),
+            'cooldown_ms': config.get('cooldown_ms', 1000),
+            'condition': config['condition'],
+            'actions': config['actions'],
+            'last_trigger_time': 0
+        }
+
+        self.automations.append(validated)
+        self._save_json('/configs/automations.json', self.automations)
+        print(f"Added automation: {validated['id']}")
+        return True
+
+    def remove_automation(self, id):
+        before = len(self.automations)
+        self.automations = [a for a in self.automations if a['id'] != id]
+        if len(self.automations) < before:
+            self._save_json('/configs/automations.json', self.automations)
+            print(f"Removed automation: {id}")
+            return True
+        print(f"Automation '{id}' not found.")
+        return False

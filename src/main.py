@@ -24,6 +24,9 @@ def setup_wifi():
 def send_response(conn, data, status_code=200):
     if isinstance(data, (dict, list)):
         data = json.dumps(data)
+    else:
+        data = str(data)
+
     response = f"HTTP/1.1 {status_code} OK\r\n"
     response += "Content-Type: application/json\r\n"
     response += "Access-Control-Allow-Origin: *\r\n"
@@ -71,6 +74,26 @@ def handle_request(conn, path, method, query_params, body):
             return
         send_response(conn, result)
 
+    elif path == "/actuator" and method == "POST":
+        if not body or not isinstance(body, dict):
+            send_response(conn, {"error": "Missing JSON body"}, 400)
+            return
+        ok = device_manager.add_actuator(body)
+        if ok:
+            send_response(conn, {"status": "created"}, 201)
+        else:
+            send_response(conn, {"error": "Failed to add actuator"}, 400)
+        return
+    
+    elif path == "/actuator" and method == "DELETE":
+        id = query_params.get("id") or (body.get("id") if body else None)
+        if not id:
+            send_response(conn, {"error": "Missing actuator id"}, 400)
+            return
+        ok = device_manager.remove_actuator(id)
+        send_response(conn, {"status": "OK"} if ok else {"error": "Not found"}, 200 if ok else 404)
+        return
+
     elif path == "/actuator/control":
         id = query_params.get("id")
         method_param = query_params.get("method")
@@ -97,8 +120,61 @@ def handle_request(conn, path, method, query_params, body):
             return
         send_response(conn, result)
 
+    
+    elif path == "/sensor" and method == "POST":
+        if not body or not isinstance(body, dict):
+            send_response(conn, {"error": "Missing JSON body"}, 400)
+            return
+        ok = device_manager.add_sensor(body)
+        if ok:
+            send_response(conn, {"status": "created"}, 201)
+        else:
+            send_response(conn, {"error": "Failed to add sensor"}, 400)
+        return
+
+    elif path == "/sensor" and method == "DELETE":
+        id = query_params.get("id") or (body.get("id") if body else None)
+        if not id:
+            send_response(conn, {"error": "Missing sensor id"}, 400)
+            return
+        ok = device_manager.remove_sensor(id)
+        send_response(conn, {"status": "OK"} if ok else {"error": "Not found"}, 200 if ok else 404)
+        return
+
     elif path == "/automations" and method == "GET":
         send_response(conn, device_manager.get_automations_list())
+
+    elif path == "/automation" and method == "GET":
+        id = query_params.get("id")
+        if not id:
+            send_response(conn, {"error": "Missing id"}, 400)
+            return
+        for a in device_manager.automations:
+            if a['id'] == id:
+                send_response(conn, a)
+                return
+        send_response(conn, {"error": "Automation not found"}, 404)
+        return
+
+    elif path == "/automation" and method == "POST":
+        if not body or not isinstance(body, dict):
+            send_response(conn, {"error": "Missing JSON body"}, 400)
+            return
+        ok = device_manager.add_automation(body)
+        if ok:
+            send_response(conn, {"status": "created"}, 201)
+        else:
+            send_response(conn, {"error": "Failed to add automation"}, 400)
+        return
+
+    elif path == "/automation" and method == "DELETE":
+        id = query_params.get("id") or (body.get("id") if body else None)
+        if not id:
+            send_response(conn, {"error": "Missing id"}, 400)
+            return
+        ok = device_manager.remove_automation(id)
+        send_response(conn, {"status": "OK"} if ok else {"error": "Not found"}, 200 if ok else 404)
+        return
 
     elif path == "/automation/toggle" and method == "POST":
         id = query_params.get("id") or (body.get("id") if body else None)
