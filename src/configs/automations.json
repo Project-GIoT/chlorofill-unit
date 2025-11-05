@@ -8,9 +8,9 @@
         "condition": {
             "type": "State",
             "sensor": "soil_moisture_a",
-            "field": "scaled_value",
+            "field": "reading",
             "operator": ">",
-            "threshold": 400
+            "threshold": 450
         },
         "actions": [
             {
@@ -30,9 +30,9 @@
         "condition": {
             "type": "State",
             "sensor": "soil_moisture_a",
-            "field": "scaled_value",
+            "field": "reading",
             "operator": "<=",
-            "threshold": 400
+            "threshold": 450
         },
         "actions": [
             {
