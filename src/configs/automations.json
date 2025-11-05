@@ -1,6 +1,7 @@
 [
     {
         "name": "Automatic Irrigation (Dry)",
+        "id": "automatic-irrigation-dry",
         "description": "Turn on pump when soil is dry",
         "enabled": true,
         "cooldown_ms": 100,
@@ -22,6 +23,7 @@
     },
     {
         "name": "Automatic Irrigation (Wet)",
+        "id": "automatic-irrigation-wet",
         "description": "Turn off pump when soil is wet",
         "enabled": true,
         "cooldown_ms": 100,
@@ -43,6 +45,7 @@
     },
     {
         "name": "High Temperature Detector",
+        "id": "high-temperature-detector",
         "description": "Detect when temperature exceeds 30°C",
         "enabled": true,
         "cooldown_ms": 1000,
@@ -74,6 +77,7 @@
     },
     {
         "name": "Normal Temperature Detector",
+        "id": "normal-temperature-detector",
         "description": "Detect when temperature is below 30°C",
         "enabled": true,
         "cooldown_ms": 1000,

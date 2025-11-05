@@ -1,20 +1,23 @@
 [
     {
-        "name": "temperature",
+        "name": "Temperature",
+        "id": "temperature",
         "driver": "ds18b20",
         "pins": [
             32
         ]
     },
     {
-        "name": "soil_moisture_a",
+        "name": "Soil Moisture",
+        "id": "soil_moisture_a",
         "driver": "soil_moisture",
         "pins": [
             34
         ]
     },
     {
-        "name": "reservoir",
+        "name": "Reservoir",
+        "id": "reservoir",
         "driver": "water_volume",
         "pins": [
             18,

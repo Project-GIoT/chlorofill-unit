@@ -1,20 +1,23 @@
 [
     {
-        "name": "builtin_led",
+        "name": "LED Indicator",
+        "id": "builtin_led",
         "driver": "led_driver",
         "pins": [
             5
         ]
     },
     {
-        "name": "buzzer",
+        "name": "Buzzer",
+        "id": "buzzer",
         "driver": "buzzer_driver",
         "pins": [
             13
         ]
     },
     {
-        "name": "pump",
+        "name": "Pump",
+        "id": "pump",
         "driver": "pump",
         "pins": [
             4
