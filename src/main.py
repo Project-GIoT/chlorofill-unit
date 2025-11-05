@@ -28,7 +28,7 @@ def setup_wifi():
         print(f'AP Password     : {config.WIFI_AP_PASSWORD}')
 
 def send_response(conn, data, status_code=200):
-    if isinstance(data, dict):
+    if isinstance(data, (dict, list)):
         data = json.dumps(data)
     response = f"HTTP/1.1 {status_code} OK\r\n"
     response += "Content-Type: application/json\r\n"
