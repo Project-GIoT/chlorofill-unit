@@ -5,6 +5,7 @@ import network
 import socket
 
 import config
+import wifi_manager
 from device_manager import DeviceManager
 from unit_manager import UnitManager
 
@@ -12,20 +13,13 @@ unit_manager = UnitManager(config.UNIT_ID, config.UNIT_MODEL, config.FW_VERSION)
 device_manager = DeviceManager()
 
 def setup_wifi():
-    ap = network.WLAN(network.AP_IF)
-    ap.active(True)
-
-    unit_config = unit_manager.get_config()
-    ap_name = unit_config['name']
-    
-    ap.config(essid=ap_name, password=config.WIFI_AP_PASSWORD)
-    ap.ifconfig(('192.168.0.1', '255.255.255.0', '192.168.0.1', '192.168.0.1'))
-    
-    if config.DEBUG:
-        print('\nUnitAccess Point started')
-        print(f'AP IP address   : {ap.ifconfig()[0]}')
-        print(f'AP Name         : {ap_name}')
-        print(f'AP Password     : {config.WIFI_AP_PASSWORD}')
+    wifi_conf = wifi_manager.load_wifi_config()
+    if not wifi_conf:
+        print("Wi-Fi config missing, starting fallback AP mode")
+        wifi_manager.start_ap("chloroFill", "chloroFill")
+        return "192.168.0.1"
+    else:
+        return wifi_manager.setup_wifi(wifi_conf)
 
 def send_response(conn, data, status_code=200):
     if isinstance(data, (dict, list)):
@@ -192,7 +186,8 @@ def main():
         print(f"FW Version: {unit['fw_version']}")
         print(f"Name: {unit['name']}")
 
-    setup_wifi()
+    ip = setup_wifi()
+    print("API accessible at:", ip)
 
     device_manager.load_devices()
     device_manager.load_automations("/configs/automations.json")

@@ -1,0 +1,12 @@
+{
+    "mode": "dual",
+    "ap": {
+        "ssid": "ChloroFill",
+        "password": "chl0r0F!ll;06-11-2025"
+    },
+    "sta": {
+        "enabled": false,
+        "ssid": "",
+        "password": ""
+    }
+}
