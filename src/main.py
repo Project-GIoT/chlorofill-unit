@@ -58,40 +58,40 @@ def handle_request(conn, path, method, query_params, body):
         send_response(conn, info)
 
     elif path == "/actuators" and method == "GET":
-        send_response(conn, device_manager.get_actuator_names())
+        send_response(conn, device_manager.get_actuator_ids())
 
     elif path == "/actuator" and method == "GET":
-        name = query_params.get("name")
-        if not name:
-            send_response(conn, {"error": "Missing actuator name"}, 400)
+        id = query_params.get("id")
+        if not id:
+            send_response(conn, {"error": "Missing actuator id"}, 400)
             return
-        result = device_manager.get_actuator_state(name)
+        result = device_manager.get_actuator_state(id)
         if result is None:
             send_response(conn, {"error": "Actuator not found"}, 404)
             return
         send_response(conn, result)
 
     elif path == "/actuator/control":
-        name = query_params.get("name")
+        id = query_params.get("id")
         method_param = query_params.get("method")
-        if not name or not method_param:
+        if not id or not method_param:
             send_response(conn, {"error": "Missing parameters"}, 400)
             return
         params = query_params.copy()
-        params.pop("name", None)
+        params.pop("id", None)
         params.pop("method", None)
-        success = device_manager.invoke_actuator_method(name, method_param, params)
+        success = device_manager.invoke_actuator_method(id, method_param, params)
         send_response(conn, {"status": "OK"} if success else {"error": "Failed"}, 200 if success else 500)
 
     elif path == "/sensors" and method == "GET":
-        send_response(conn, device_manager.get_sensor_names())
+        send_response(conn, device_manager.get_sensor_ids())
 
     elif path == "/sensor" and method == "GET":
-        name = query_params.get("name")
-        if not name:
-            send_response(conn, {"error": "Missing sensor name"}, 400)
+        id = query_params.get("id")
+        if not id:
+            send_response(conn, {"error": "Missing sensor id"}, 400)
             return
-        result = device_manager.get_sensor_reading(name)
+        result = device_manager.get_sensor_reading(id)
         if result is None:
             send_response(conn, {"error": "Sensor not found"}, 404)
             return
@@ -101,11 +101,11 @@ def handle_request(conn, path, method, query_params, body):
         send_response(conn, device_manager.get_automations_list())
 
     elif path == "/automation/toggle" and method == "POST":
-        name = query_params.get("name") or (body.get("name") if body else None)
-        if not name:
-            send_response(conn, {"error": "Missing name"}, 400)
+        id = query_params.get("id") or (body.get("id") if body else None)
+        if not id:
+            send_response(conn, {"error": "Missing id"}, 400)
             return
-        success = device_manager.toggle_automation(name)
+        success = device_manager.toggle_automation(id)
         send_response(conn, {"status": "OK"} if success else {"error": "Not found"}, 200 if success else 404)
 
     elif path == "/automation/trigger" and method == "POST":
@@ -116,8 +116,8 @@ def handle_request(conn, path, method, query_params, body):
         device_manager.trigger_event(event)
         send_response(conn, {"status": "OK"})
 
-    elif path == "/metadata" and method == "GET":
-        send_response(conn, device_manager.get_metadata())
+    elif path == "/devices" and method == "GET":
+        send_response(conn, device_manager.get_devices())
 
     elif method == "OPTIONS":
         send_response(conn, "")

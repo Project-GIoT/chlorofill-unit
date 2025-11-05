@@ -86,26 +86,26 @@ class DeviceManager:
             driver = self.drivers.get(actuator['driver'])
             if driver and hasattr(driver, 'init'):
                 config = {
-                    'name': actuator['name'],
+                    'id': actuator['id'],
                     'pins': actuator['pins']
                 }
                 driver.init(config)
-                print(f"Initialized actuator: {actuator['name']}")
+                print(f"Initialized actuator: {actuator['id']}")
         except Exception as e:
-            print(f"Failed to initialize actuator {actuator['name']}: {e}")
+            print(f"Failed to initialize actuator {actuator['id']}: {e}")
     
     def _init_sensor(self, sensor):
         try:
             driver = self.drivers.get(sensor['driver'])
             if driver and hasattr(driver, 'init'):
                 config = {
-                    'name': sensor['name'],
+                    'id': sensor['id'],
                     'pins': sensor['pins']
                 }
                 driver.init(config)
-                print(f"Initialized sensor: {sensor['name']}")
+                print(f"Initialized sensor: {sensor['id']}")
         except Exception as e:
-            print(f"Failed to initialize sensor {sensor['name']}: {e}")
+            print(f"Failed to initialize sensor {sensor['id']}: {e}")
     
     def init_automations(self):
         for automation in self.automations:
@@ -114,7 +114,7 @@ class DeviceManager:
                 pin = condition.get('pin', -1)
                 if pin >= 0:
                     Pin(pin, Pin.IN, Pin.PULL_UP)
-                    print(f"Initialized physical pin {pin} for automation {automation['name']}")
+                    print(f"Initialized physical pin {pin} for automation {automation['id']}")
     
     def update_actuators(self):
         for actuator in self.actuators:
@@ -122,7 +122,7 @@ class DeviceManager:
                 driver = self.drivers.get(actuator['driver'])
                 if driver and hasattr(driver, 'update'):
                     config = {
-                        'name': actuator['name'],
+                        'id': actuator['id'],
                         'pins': actuator['pins']
                     }
                     driver.update(config)
@@ -151,7 +151,7 @@ class DeviceManager:
             
             cooldown = automation.get('cooldown_ms', 1000)
             if should_trigger and time.ticks_diff(current_time, automation['last_trigger_time']) > cooldown:
-                print(f"Triggering automation: {automation['name']}")
+                print(f"Triggering automation: {automation['id']}")
                 self._execute_automation_actions(automation)
                 automation['last_trigger_time'] = current_time
     
@@ -239,14 +239,14 @@ class DeviceManager:
                 delay_ms = action.get('delay_ms', 1000)
                 time.sleep_ms(delay_ms)
     
-    def get_actuator_names(self):
-        return [a['name'] for a in self.actuators]
+    def get_actuator_ids(self):
+        return [a['id'] for a in self.actuators]
     
-    def get_sensor_names(self):
-        return [s['name'] for s in self.sensors]
+    def get_sensor_ids(self):
+        return [s['id'] for s in self.sensors]
     
-    def get_actuator_state(self, name):
-        actuator = self._find_actuator(name)
+    def get_actuator_state(self, id):
+        actuator = self._find_actuator(id)
         if not actuator:
             return None
         
@@ -256,7 +256,7 @@ class DeviceManager:
         
         try:
             config = {
-                'name': actuator['name'],
+                'id': actuator['id'],
                 'pins': actuator['pins']
             }
             return driver.get_states(config)
@@ -264,8 +264,8 @@ class DeviceManager:
             print(f'Error getting actuator state: {e}')
             return None
     
-    def get_sensor_reading(self, name):
-        sensor = self._find_sensor(name)
+    def get_sensor_reading(self, id):
+        sensor = self._find_sensor(id)
         if not sensor:
             return None
         
@@ -275,7 +275,7 @@ class DeviceManager:
         
         try:
             config = {
-                'name': sensor['name'],
+                'id': sensor['id'],
                 'pins': sensor['pins']
             }
             return driver.read(config)
@@ -283,8 +283,8 @@ class DeviceManager:
             print(f'Error reading sensor: {e}')
             return None
     
-    def invoke_actuator_method(self, name, method, params=None):
-        actuator = self._find_actuator(name)
+    def invoke_actuator_method(self, id, method, params=None):
+        actuator = self._find_actuator(id)
         if not actuator:
             return False
         
@@ -294,7 +294,7 @@ class DeviceManager:
         
         try:
             config = {
-                'name': actuator['name'],
+                'id': actuator['id'],
                 'pins': actuator['pins'],
                 'data': params or {}
             }
@@ -305,15 +305,15 @@ class DeviceManager:
             print(f'Error invoking method {method}: {e}')
             return False
     
-    def _find_actuator(self, name):
+    def _find_actuator(self, id):
         for actuator in self.actuators:
-            if actuator['name'] == name:
+            if actuator['id'] == id:
                 return actuator
         return None
     
-    def _find_sensor(self, name):
+    def _find_sensor(self, id):
         for sensor in self.sensors:
-            if sensor['name'] == name:
+            if sensor['id'] == id:
                 return sensor
         return None
     
@@ -326,21 +326,22 @@ class DeviceManager:
         for automation in self.automations:
             result.append({
                 'name': automation['name'],
+                'id': automation['id'],
                 'description': automation.get('description', ''),
                 'enabled': automation.get('enabled', True),
                 'condition_type': automation.get('condition', {}).get('type')
             })
         return result
     
-    def toggle_automation(self, name):
+    def toggle_automation(self, id):
         for automation in self.automations:
-            if automation['name'] == name:
+            if automation['id'] == id:
                 automation['enabled'] = not automation.get('enabled', True)
-                print(f"Automation {name} {'enabled' if automation['enabled'] else 'disabled'}")
+                print(f"Automation {id} {'enabled' if automation['enabled'] else 'disabled'}")
                 return True
         return False
     
-    def get_metadata(self):
+    def get_devices(self):
         metadata = {
             'actuators': [],
             'sensors': []
@@ -350,6 +351,7 @@ class DeviceManager:
             driver = self.drivers.get(actuator['driver'])
             meta = {
                 'name': actuator['name'],
+                'id': actuator['id'],
                 'driver': actuator['driver'],
                 'type': 'actuator'
             }
@@ -363,6 +365,7 @@ class DeviceManager:
             driver = self.drivers.get(sensor['driver'])
             meta = {
                 'name': sensor['name'],
+                'id': sensor['id'],
                 'driver': sensor['driver'],
                 'type': 'sensor'
             }
