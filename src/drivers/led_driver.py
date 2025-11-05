@@ -1,7 +1,6 @@
 from machine import Pin
 import time
 
-# Driver metadata
 METADATA = {
     'methods': {
         'on': {
@@ -27,11 +26,9 @@ METADATA = {
     'exposed_states': ['state', 'blink_active', 'toggle_count']
 }
 
-# State storage
 states = {}
 
 def _get_state(pin):
-    """Get or create state for pin"""
     if pin not in states:
         states[pin] = {
             'current_state': 0,
@@ -46,7 +43,6 @@ def _get_state(pin):
     return states[pin]
 
 def init(config):
-    """Initialize LED"""
     pin = config['pins'][0]
     print(f"LED Driver: Initializing LED on pin {pin}")
     
@@ -58,18 +54,14 @@ def init(config):
     print(f"LED Driver initialized for pin {pin}")
 
 def on(config):
-    """Turn LED on"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
     state['pin_obj'].value(1)
     state['current_state'] = 1
     state['blink_active'] = False
-    
-    print(f"LED on pin {pin} turned ON")
 
 def off(config):
-    """Turn LED off"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
@@ -78,7 +70,6 @@ def off(config):
     state['blink_active'] = False
     
 def toggle(config):
-    """Toggle LED state"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
@@ -94,7 +85,6 @@ def toggle(config):
     state['blink_active'] = False
 
 def blink(config):
-    """Start blinking LED"""
     pin = config['pins'][0]
     state = _get_state(pin)
     data = config.get('data', {})
@@ -106,11 +96,8 @@ def blink(config):
     state['blink_start'] = time.ticks_ms()
     state['blink_duration'] = duration
     state['blink_interval'] = interval
-    
-    print(f"LED on pin {pin} starting blink for {duration}ms with {interval}ms interval")
 
 def get_states(config):
-    """Get LED states"""
     pin = config['pins'][0]
     state = _get_state(pin)
     
@@ -121,7 +108,6 @@ def get_states(config):
     }
 
 def update(config):
-    """Update LED (handle blinking)"""
     pin = config['pins'][0]
     state = _get_state(pin)
     now = time.ticks_ms()
