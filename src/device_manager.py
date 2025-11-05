@@ -151,7 +151,7 @@ class DeviceManager:
             
             cooldown = automation.get('cooldown_ms', 1000)
             if should_trigger and time.ticks_diff(current_time, automation['last_trigger_time']) > cooldown:
-                print(f"Triggering automation: {automation['id']}")
+                # print(f"Triggering automation: {automation['id']}")
                 self._execute_automation_actions(automation)
                 automation['last_trigger_time'] = current_time
     
