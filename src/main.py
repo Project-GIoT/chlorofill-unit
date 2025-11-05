@@ -151,16 +151,22 @@ def start_server():
     server.listen(5)
         
     while True:
+        connection = None
         try:
-            conn, address = server.accept()
-            request = conn.recv(1024).decode()
+            connection, address = server.accept()
+            connection.settimeout(3)
+            request = connection.recv(1024).decode()
             method, path, query_params, body = parse_request(request)
             if method:
-                handle_request(conn, path, method, query_params, body)
-            conn.close()
+                handle_request(connection, path, method, query_params, body)
         except Exception as e:
             print("Request handling error:", e)
         finally:
+            if connection:
+                try:
+                    connection.close()
+                except:
+                    pass
             gc.collect()
 
 def start_dns_server(ap_ip='192.168.0.1'):
