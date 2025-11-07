@@ -5,8 +5,8 @@
         "password": "chl0r0F!ll;06-11-2025"
     },
     "sta": {
-        "enabled": false,
-        "ssid": "",
-        "password": ""
+        "enabled": true,
+        "ssid": "VillaErnest",
+        "password": "2023306298"
     }
 }

@@ -195,6 +195,59 @@ def handle_request(conn, path, method, query_params, body):
     elif path == "/devices" and method == "GET":
         send_response(conn, device_manager.get_devices())
 
+    elif path == "/wifi/config" and method == "GET":
+        conf = wifi_manager.load_wifi_config()
+        if conf:
+            send_response(conn, conf)
+        else:
+            send_response(conn, {"error": "Wi-Fi config not found"}, 404)
+        return
+
+    elif path == "/wifi/config" and method == "POST":
+        if not body or not isinstance(body, dict):
+            send_response(conn, {"error": "Missing or invalid JSON body"}, 400)
+            return
+
+        current = wifi_manager.load_wifi_config() or {}
+        current.update(body)
+
+        ok = wifi_manager.save_wifi_config(current)
+        if ok:
+            send_response(conn, {"status": "updated"})
+        else:
+            send_response(conn, {"error": "Failed to save config"}, 500)
+        return
+
+    elif path == "/system/reboot" and method == "POST":
+        send_response(conn, {"status": "rebooting..."})
+        import machine, _thread
+
+        def delayed_reboot():
+            time.sleep(1)
+            machine.reset()
+
+        _thread.start_new_thread(delayed_reboot, ())
+        return
+    
+    elif path == "/network/ip" and method == "GET":
+        try:
+            wlan_sta = network.WLAN(network.STA_IF)
+            wlan_ap = network.WLAN(network.AP_IF)
+
+            ip = None
+            if wlan_sta.active() and wlan_sta.isconnected():
+                ip = wlan_sta.ifconfig()[0]
+            elif wlan_ap.active():
+                ip = wlan_ap.ifconfig()[0]
+            else:
+                ip = "0.0.0.0"
+
+            send_response(conn, {"ip": ip})
+        except Exception as e:
+            send_response(conn, {"error": str(e)}, 500)
+        return
+
+
     elif method == "OPTIONS":
         send_response(conn, "")
 

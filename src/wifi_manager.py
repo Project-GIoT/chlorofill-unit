@@ -2,13 +2,44 @@ import network
 import json
 import time
 
-def load_wifi_config(path='wifi_config.json'):
+CONFIG_PATH = 'wifi_config.json'
+
+def load_wifi_config(path=CONFIG_PATH):
     try:
         with open(path, 'r') as f:
             return json.load(f)
     except Exception as e:
         print("Failed to load Wi-Fi config:", e)
         return None
+
+def save_wifi_config(config, path=CONFIG_PATH):
+    try:
+        with open(path, 'w') as f:
+            json.dump(config, f)
+        print("Wi-Fi config saved.")
+        return True
+    except Exception as e:
+        print("Failed to save Wi-Fi config:", e)
+        return False
+
+def modify_wifi_config(path=CONFIG_PATH, section=None, key=None, value=None):
+    config = load_wifi_config(path)
+    if not config:
+        print("No config found, cannot modify.")
+        return False
+
+    if section and key:
+        if section in config and key in config[section]:
+            config[section][key] = value
+        elif section in config:
+            config[section][key] = value
+        else:
+            config[section] = {key: value}
+    elif key:
+        config[key] = value
+    else:
+        print("Invalid modification request.")
+        return False
 
 def connect_sta(ssid, password, timeout=10000):
     wlan = network.WLAN(network.STA_IF)
